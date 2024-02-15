@@ -1,13 +1,13 @@
 import express from 'express';
-import routes from './routes.js';
+import bodyParser from 'body-parser';
+import crudRouter from './crud.js';
 
 const app = express();
-const PORT = 2000;
-app.use(express.json());
+const PORT = 3000; 
 
-app.use(routes);
-
+app.use(bodyParser.json());
+app.use(crudRouter);
 
 app.listen(PORT, () => {
-    console.log(`Server is listening on port ${PORT}`);
+    console.log(`Server is running on port ${PORT}`);
 });

@@ -1,50 +1,53 @@
+import express from 'express';
+
+const router = express.Router();
+
 let tasks = [];
 let taskId = 1;
 
-export function createTask(title, completed=false ) {
+router.post('/tasks', (req, res) => {
+    const { title, completed } = req.body;
     try {
         const task = { id: taskId++, title, completed };
         tasks.push(task);
-        return task;
+        res.status(201).json(task);
     } catch (error) {
         console.error('Error creating task:', error);
-        return null; 
+        res.status(500).send('Failed to create task');
     }
-}
+});
 
-export function getTask(id) {
-    try {
-        return tasks.find(task => task.id === id);
-    } catch (error) {
-        console.error('Error getting task:', error);
-        return null; 
+router.get('/tasks/:id', (req, res) => {
+    const id = parseInt(req.params.id);
+    const task = tasks.find(task => task.id === id);
+    if (!task) {
+        res.status(404).send('Task not found');
+    } else {
+        res.json(task);
     }
-}
+});
 
-export function updateTask(id, updatedTask) {
-    try {
-        const index = tasks.findIndex(task => task.id === id);
-        if (index !== -1) {
-            tasks[index] = { ...tasks[index], ...updatedTask };
-            return tasks[index];
-        }
-        return null;
-    } catch (error) {
-        console.error('Error updating task:', error);
-        return null; 
+router.put('/tasks/:id', (req, res) => {
+    const id = parseInt(req.params.id);
+    const updatedTask = req.body;
+    const index = tasks.findIndex(task => task.id === id);
+    if (index !== -1) {
+        tasks[index] = { ...tasks[index], ...updatedTask };
+        res.json(tasks[index]);
+    } else {
+        res.status(404).send('Task not found');
     }
-}
+});
 
-export function deleteTask(id) {
-    try {
-        const index = tasks.findIndex(task => task.id === id);
-        if (index !== -1) {
-            const deletedTask = tasks.splice(index, 1);
-            return deletedTask[0];
-        }
-        return null;
-    } catch (error) {
-        console.error('Error deleting task:', error);
-        return null; 
+router.delete('/tasks/:id', (req, res) => {
+    const id = parseInt(req.params.id);
+    const index = tasks.findIndex(task => task.id === id);
+    if (index !== -1) {
+        const deletedTask = tasks.splice(index, 1);
+        res.json(deletedTask[0]);
+    } else {
+        res.status(404).send('Task not found');
     }
-}
+});
+
+export default router;
